@@ -7,5 +7,8 @@ zerops:
         - |
           export NODE_ENV=production
           yarn build:admin
+      cache:
+        - ./node_modules
+        - ./yarn.lock
       deploy:
         - ./build/~
