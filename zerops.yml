@@ -28,3 +28,4 @@ zerops:
         - ./node_modules
         - package.json
         - medusa-config.js
+    start: medusa start
