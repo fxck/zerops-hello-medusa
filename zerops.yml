@@ -1,0 +1,11 @@
+zerops:
+  - setup: admin
+    build:
+      base: nodejs@18
+      buildCommands:
+        - yarn
+        - |
+          export NODE_ENV=production
+          yarn build:admin
+      deploy:
+        - ./build/~
