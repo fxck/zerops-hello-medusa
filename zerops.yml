@@ -12,3 +12,19 @@ zerops:
         - ./yarn.lock
       deploy:
         - ./build/~
+  - setup: api
+    build:
+      base: nodejs@18
+      buildCommands:
+        - yarn
+        - |
+          export NODE_ENV=production
+          yarn build:server
+      cache:
+        - ./node_modules
+        - ./yarn.lock
+      deploy:
+        - ./dist
+        - ./node_modules
+        - package.json
+        - medusa-config.js
