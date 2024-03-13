@@ -68,7 +68,8 @@ const modules = {
   cacheService: {
     resolve: "@medusajs/cache-redis",
     options: {
-      redisUrl: REDIS_URL
+      redisUrl: REDIS_URL,
+      ttl: 300,
     }
   },
 };
