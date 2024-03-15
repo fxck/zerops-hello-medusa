@@ -1,70 +1,111 @@
-<p align="center">
-  <a href="https://www.medusajs.com">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://user-images.githubusercontent.com/59018053/229103275-b5e482bb-4601-46e6-8142-244f531cebdb.svg">
-    <source media="(prefers-color-scheme: light)" srcset="https://user-images.githubusercontent.com/59018053/229103726-e5b529a3-9b3f-4970-8a1f-c6af37f087bf.svg">
-    <img alt="Medusa logo" src="https://user-images.githubusercontent.com/59018053/229103726-e5b529a3-9b3f-4970-8a1f-c6af37f087bf.svg">
-    </picture>
-  </a>
-</p>
-<h1 align="center">
-  Medusa
-</h1>
+# Zerops Hello Medusa (admin + server) WIP
 
-<h4 align="center">
-  <a href="https://docs.medusajs.com">Documentation</a> |
-  <a href="https://www.medusajs.com">Website</a>
-</h4>
+```yaml
+project:
+  name: copy of zerops-hello-medusa
+  tags:
+    - hello
+    - medusa
+services:
+  - hostname: storefront
+    type: nodejs@18
+    envSecrets:
+      NEXT_PUBLIC_BASE_URL: https://medusa.fxck.dev
+      NEXT_PUBLIC_DEFAULT_REGION: EU
+      NEXT_PUBLIC_MEDUSA_BACKEND_URL: http://_dsr.api.zerops:9000
+      REVALIDATE_SECRET: supersecret
+    ports:
+      - port: 8000
+        httpSupport: true
+    verticalAutoscaling:
+      minVCpu: 5
+      maxVCpu: 5
+      minRam: 1
+      maxRam: 1
+      minDisk: 5
+      maxDisk: 100
+    minContainers: 3
+    maxContainers: 3
+  - hostname: storage
+    type: object-storage
+    objectStorageSize: 2
+  - hostname: redis
+    type: keydb@6
+    mode: NON_HA
+    verticalAutoscaling:
+      minVCpu: 5
+      maxVCpu: 20
+      minRam: 0.25
+      maxRam: 32
+      minDisk: 1
+      maxDisk: 100
+  - hostname: db
+    type: postgresql@14
+    mode: NON_HA
+    verticalAutoscaling:
+      minVCpu: 20
+      maxVCpu: 20
+      minRam: 1
+      maxRam: 32
+      minDisk: 1
+      maxDisk: 100
+  - hostname: api
+    type: nodejs@18
+    envSecrets:
+      ADMIN_CORS: https://medusa-admin.fxck.dev
+      COOKIE_SECRET: asdasdasomething
+      DATABASE_TYPE: postgres
+      DATABASE_URL: postgresql://${db_user}:${db_password}@db:5432
+      JWT_SECRET: something
+      MINIO_ACCESS_KEY: ${storage_accessKeyId}
+      MINIO_BUCKET: ${storage_bucketName}
+      MINIO_ENDPOINT: ${storage_apiUrl}
+      MINIO_SECRET_KEY: ${storage_secretAccessKey}
+      REDIS_URL: redis://redis:6379
+    ports:
+      - port: 9000
+        httpSupport: true
+    verticalAutoscaling:
+      minVCpu: 5
+      maxVCpu: 5
+      minRam: 1
+      maxRam: 1
+      minDisk: 5
+      maxDisk: 100
+    minContainers: 6
+    maxContainers: 6
+  - hostname: adminer
+    type: php-apache@8.0+2.4
+    buildFromGit: https://github.com/zeropsio/recipe-adminer@main
+    enableSubdomainAccess: true
+    minContainers: 1
+    maxContainers: 1
+  - hostname: admin
+    type: nginx@1.22
+    envSecrets:
+      MEDUSA_ADMIN_BACKEND_URL: https://medusa-api.fxck.dev
+    nginxConfig: |-
+      server {
+          listen 80 default_server;
+          listen [::]:80 default_server;
 
-<p align="center">
-  Building blocks for digital commerce
-</p>
-<p align="center">
-  <a href="https://github.com/medusajs/medusa/blob/master/CONTRIBUTING.md">
-    <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat" alt="PRs welcome!" />
-  </a>
-    <a href="https://www.producthunt.com/posts/medusa"><img src="https://img.shields.io/badge/Product%20Hunt-%231%20Product%20of%20the%20Day-%23DA552E" alt="Product Hunt"></a>
-  <a href="https://discord.gg/xpCwq3Kfn8">
-    <img src="https://img.shields.io/badge/chat-on%20discord-7289DA.svg" alt="Discord Chat" />
-  </a>
-  <a href="https://twitter.com/intent/follow?screen_name=medusajs">
-    <img src="https://img.shields.io/twitter/follow/medusajs.svg?label=Follow%20@medusajs" alt="Follow @medusajs" />
-  </a>
-</p>
+          server_name _;
+          root /var/www;
 
-## Compatibility
+          location / {
+              try_files $uri $uri/ /index.html;
+          }
 
-This starter is compatible with versions >= 1.8.0 of `@medusajs/medusa`. 
-
-## Getting Started
-
-Visit the [Quickstart Guide](https://docs.medusajs.com/create-medusa-app) to set up a server.
-
-Visit the [Docs](https://docs.medusajs.com/development/backend/prepare-environment) to learn more about our system requirements.
-
-## What is Medusa
-
-Medusa is a set of commerce modules and tools that allow you to build rich, reliable, and performant commerce applications without reinventing core commerce logic. The modules can be customized and used to build advanced ecommerce stores, marketplaces, or any product that needs foundational commerce primitives. All modules are open-source and freely available on npm.
-
-Learn more about [Medusa’s architecture](https://docs.medusajs.com/development/fundamentals/architecture-overview) and [commerce modules](https://docs.medusajs.com/modules/overview) in the Docs.
-
-## Roadmap, Upgrades & Plugins
-
-You can view the planned, started and completed features in the [Roadmap discussion](https://github.com/medusajs/medusa/discussions/categories/roadmap).
-
-Follow the [Upgrade Guides](https://docs.medusajs.com/upgrade-guides/) to keep your Medusa project up-to-date.
-
-Check out all [available Medusa plugins](https://medusajs.com/plugins/).
-
-## Community & Contributions
-
-The community and core team are available in [GitHub Discussions](https://github.com/medusajs/medusa/discussions), where you can ask for support, discuss roadmap, and share ideas.
-
-Join our [Discord server](https://discord.com/invite/medusajs) to meet other community members.
-
-## Other channels
-
-- [GitHub Issues](https://github.com/medusajs/medusa/issues)
-- [Twitter](https://twitter.com/medusajs)
-- [LinkedIn](https://www.linkedin.com/company/medusajs)
-- [Medusa Blog](https://medusajs.com/blog/)
+          access_log syslog:server=unix:/dev/log,facility=local1 default_short;
+          error_log syslog:server=unix:/dev/log,facility=local1;
+      }
+    verticalAutoscaling:
+      minVCpu: 1
+      maxVCpu: 20
+      minRam: 0.25
+      maxRam: 32
+      minDisk: 1
+      maxDisk: 100
+    minContainers: 1
+    maxContainers: 1
+```
